@@ -4,6 +4,7 @@ import 'blockly/blocks';
 import { pythonGenerator } from 'blockly/python';
 import * as en from 'blockly/msg/en';
 import { toolboxXml } from './toolbox';
+import { bataraTheme } from './theme';
 
 Blockly.setLocale(en);
 
@@ -18,6 +19,8 @@ export default function BlocklyEditor({ initialXml, onChange }) {
       toolbox,
       trashcan: true,
       zoom: { controls: true, wheel: true },
+      renderer: 'zelos',
+      theme: bataraTheme,
     });
     workspaceRef.current = workspace;
 
