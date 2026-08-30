@@ -38,6 +38,11 @@ export const bataraTheme = Blockly.Theme.defineTheme('batara', {
       colourSecondary: '#7A3FE6',
       colourTertiary: '#6B37CC',
     },
+    arduino_blocks: {
+      colourPrimary: '#00B8D9',
+      colourSecondary: '#00A3C4',
+      colourTertiary: '#008FAD',
+    },
   },
   categoryStyles: {
     logic_category: { colour: '#4C97FF' },
@@ -46,6 +51,7 @@ export const bataraTheme = Blockly.Theme.defineTheme('batara', {
     text_category: { colour: '#CF63CF' },
     variable_category: { colour: '#FF661A' },
     procedure_category: { colour: '#8C52FF' },
+    arduino_category: { colour: '#00B8D9' },
   },
   componentStyles: {
     workspaceBackgroundColour: '#F5F7FA',

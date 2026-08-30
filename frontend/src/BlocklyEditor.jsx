@@ -5,8 +5,11 @@ import { pythonGenerator } from 'blockly/python';
 import * as en from 'blockly/msg/en';
 import { toolboxXml } from './toolbox';
 import { bataraTheme } from './theme';
+import './blocks/arduinoBlocks';
+import { forBlock as arduinoForBlock } from './generators/arduinoGenerators';
 
 Blockly.setLocale(en);
+Object.assign(pythonGenerator.forBlock, arduinoForBlock);
 
 export default function BlocklyEditor({ initialXml, onChange }) {
   const blocklyDivRef = useRef(null);

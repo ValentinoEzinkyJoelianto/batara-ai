@@ -24,5 +24,21 @@ export const toolboxXml = `
   </category>
   <category name="Variables" colour="%{BKY_VARIABLES_HUE}" custom="VARIABLE"></category>
   <category name="Functions" colour="%{BKY_PROCEDURES_HUE}" custom="PROCEDURE"></category>
+  <category name="Arduino" categorystyle="arduino_category">
+    <block type="arduino_pin_mode"></block>
+    <block type="arduino_digital_write"></block>
+    <block type="arduino_digital_read"></block>
+    <block type="arduino_analog_read"></block>
+    <block type="arduino_analog_write">
+      <value name="VALUE">
+        <shadow type="math_number"><field name="NUM">128</field></shadow>
+      </value>
+    </block>
+    <block type="arduino_delay">
+      <value name="MS">
+        <shadow type="math_number"><field name="NUM">1000</field></shadow>
+      </value>
+    </block>
+  </category>
 </xml>
 `;
