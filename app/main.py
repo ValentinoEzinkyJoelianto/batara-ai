@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import auth, projects
+from app.routers import auth, classes, projects
 
 app = FastAPI(title="BATARA-AI API")
 
@@ -15,7 +15,7 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(projects.router)
-
+app.include_router(classes.router)
 
 @app.get("/health")
 async def health_check():

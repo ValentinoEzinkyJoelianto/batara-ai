@@ -11,7 +11,7 @@ import { forBlock as arduinoForBlock } from './generators/arduinoGenerators';
 Blockly.setLocale(en);
 Object.assign(pythonGenerator.forBlock, arduinoForBlock);
 
-export default function BlocklyEditor({ initialXml, onChange }) {
+export default function BlocklyEditor({ initialState, onChange }) {
   const blocklyDivRef = useRef(null);
   const workspaceRef = useRef(null);
   const [pythonCode, setPythonCode] = useState('');
@@ -27,9 +27,8 @@ export default function BlocklyEditor({ initialXml, onChange }) {
     });
     workspaceRef.current = workspace;
 
-    if (initialXml) {
-      const dom = Blockly.utils.xml.textToDom(initialXml);
-      Blockly.Xml.domToWorkspace(dom, workspace);
+    if (initialState && Object.keys(initialState).length > 0) {
+      Blockly.serialization.workspaces.load(initialState, workspace);
     }
 
     const handleChange = () => {
@@ -37,9 +36,8 @@ export default function BlocklyEditor({ initialXml, onChange }) {
       setPythonCode(code);
 
       if (onChange) {
-        const xmlDom = Blockly.Xml.workspaceToDom(workspace);
-        const xmlText = Blockly.Xml.domToText(xmlDom);
-        onChange({ xml: xmlText, code });
+        const state = Blockly.serialization.workspaces.save(workspace);
+        onChange({ state, code });
       }
     };
 

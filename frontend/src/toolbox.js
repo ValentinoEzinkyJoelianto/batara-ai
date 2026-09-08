@@ -1,6 +1,3 @@
-// Standard Blockly blocks to start with. Custom Arduino-specific blocks
-// (digitalWrite, analogRead, delay, etc.) get added here later as their
-// own category once we design them against the simulator.
 export const toolboxXml = `
 <xml xmlns="https://developers.google.com/blockly/xml">
   <category name="Logic" colour="%{BKY_LOGIC_HUE}">
@@ -31,12 +28,32 @@ export const toolboxXml = `
     <block type="arduino_analog_read"></block>
     <block type="arduino_analog_write">
       <value name="VALUE">
-        <shadow type="math_number"><field name="NUM">128</field></shadow>
+        <shadow type="math_number">
+          <field name="NUM">128</field>
+        </shadow>
       </value>
     </block>
     <block type="arduino_delay">
       <value name="MS">
-        <shadow type="math_number"><field name="NUM">1000</field></shadow>
+        <shadow type="math_number">
+          <field name="NUM">1000</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="arduino_tone">
+      <value name="FREQUENCY">
+        <shadow type="math_number">
+          <field name="NUM">440</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="arduino_no_tone"></block>
+    <block type="arduino_ultrasonic_read"></block>
+    <block type="arduino_servo_write">
+      <value name="ANGLE">
+        <shadow type="math_number">
+          <field name="NUM">90</field>
+        </shadow>
       </value>
     </block>
   </category>

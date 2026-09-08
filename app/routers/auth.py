@@ -7,6 +7,7 @@ from app.database import get_db
 from app.models import User
 from app.schemas import Token, UserCreate, UserOut
 from app.security import create_access_token, hash_password, verify_password
+from app.dependencies import get_current_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -41,3 +42,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
 
     token = create_access_token(subject=str(user.id))
     return Token(access_token=token)
+
+@router.get("/me", response_model=UserOut)
+async def get_me(current_user: User = Depends(get_current_user)):
+    return current_user

@@ -40,6 +40,7 @@ class ProjectUpdate(BaseModel):
     workspace_json: dict[str, Any] | None = None
     generated_code: str | None = None
     is_published: bool | None = None
+    class_id: uuid.UUID | None = None
 
 
 class ProjectOut(BaseModel):
@@ -47,6 +48,7 @@ class ProjectOut(BaseModel):
 
     id: uuid.UUID
     owner_id: uuid.UUID
+    class_id: uuid.UUID | None
     title: str
     description: str | None
     workspace_json: dict[str, Any]
@@ -54,3 +56,47 @@ class ProjectOut(BaseModel):
     is_published: bool
     created_at: datetime
     updated_at: datetime
+
+
+class ClassCreate(BaseModel):
+    name: str
+    institution: str | None = None
+
+
+class ClassOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    name: str
+    institution: str | None
+    instructor_id: uuid.UUID
+    created_at: datetime
+
+
+class EnrollStudentRequest(BaseModel):
+    student_email: EmailStr
+
+
+class ClassEnrollmentOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    class_id: uuid.UUID
+    student_id: uuid.UUID
+    enrolled_at: datetime
+
+
+class ReviewCreate(BaseModel):
+    status: str  # 'pending' | 'reviewed' | 'needs_revision' | 'approved'
+    comment: str | None = None
+
+
+class ReviewOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    project_id: uuid.UUID
+    instructor_id: uuid.UUID
+    status: str
+    comment: str | None
+    created_at: datetime
