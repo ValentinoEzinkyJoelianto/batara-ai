@@ -58,6 +58,19 @@ class ProjectOut(BaseModel):
     updated_at: datetime
 
 
+class GalleryProjectOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    title: str
+    description: str | None
+    owner_name: str
+    like_count: int
+    liked_by_me: bool
+    workspace_json: dict[str, Any]
+    created_at: datetime
+
+
 class ClassCreate(BaseModel):
     name: str
     institution: str | None = None
@@ -99,4 +112,36 @@ class ReviewOut(BaseModel):
     instructor_id: uuid.UUID
     status: str
     comment: str | None
+    created_at: datetime
+
+
+class ThreadCreate(BaseModel):
+    title: str
+    project_id: uuid.UUID | None = None
+
+
+class ThreadWithAuthorOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    project_id: uuid.UUID | None
+    title: str
+    created_by: uuid.UUID
+    author_name: str
+    post_count: int
+    created_at: datetime
+
+
+class PostCreate(BaseModel):
+    content: str
+
+
+class PostOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    thread_id: uuid.UUID
+    author_id: uuid.UUID
+    author_name: str
+    content: str
     created_at: datetime

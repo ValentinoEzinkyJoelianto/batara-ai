@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import BlocklyEditor from './BlocklyEditor';
 import ArduinoSimulator from './ArduinoSimulator';
 import InstructorDashboard from './InstructorDashboard';
+import GalleryView from './GalleryView';
+import ForumView from './ForumView';
 import * as api from './api';
 import './App.css';
 
@@ -13,6 +15,8 @@ function App() {
 
   const [user, setUser] = useState(null);
   const [showInstructorDashboard, setShowInstructorDashboard] = useState(false);
+  const [showGallery, setShowGallery] = useState(false);
+  const [showForum, setShowForum] = useState(false);
 
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
@@ -79,6 +83,8 @@ function App() {
     setProjects([]);
     setSelectedProject(null);
     setShowInstructorDashboard(false);
+    setShowGallery(false);
+    setShowForum(false);
   }
 
   async function handleNewProject() {
@@ -119,6 +125,18 @@ function App() {
     if (!selectedProject) return;
     try {
       const updated = await api.updateProject(token, selectedProject.id, { class_id: classId });
+      setSelectedProject(updated);
+    } catch (err) {
+      setSaveStatus('Error: ' + err.message);
+    }
+  }
+
+  async function handleTogglePublish() {
+    if (!selectedProject) return;
+    try {
+      const updated = await api.updateProject(token, selectedProject.id, {
+        is_published: !selectedProject.is_published,
+      });
       setSelectedProject(updated);
     } catch (err) {
       setSaveStatus('Error: ' + err.message);
@@ -178,6 +196,14 @@ function App() {
     return <InstructorDashboard token={token} onBack={() => setShowInstructorDashboard(false)} />;
   }
 
+  if (showGallery) {
+    return <GalleryView token={token} onBack={() => setShowGallery(false)} />;
+  }
+
+  if (showForum) {
+    return <ForumView token={token} onBack={() => setShowForum(false)} />;
+  }
+
   if (!selectedProject) {
     const isInstructor = user && (user.role === 'instructor' || user.role === 'admin');
     return (
@@ -190,6 +216,12 @@ function App() {
                 Instructor Dashboard
               </button>
             )}
+            <button onClick={() => setShowGallery(true)} style={{ marginRight: '0.5rem' }}>
+              Gallery
+            </button>
+            <button onClick={() => setShowForum(true)} style={{ marginRight: '0.5rem' }}>
+              Forum
+            </button>
             <button onClick={handleLogout}>Log out</button>
           </div>
         </div>
@@ -237,6 +269,12 @@ function App() {
           </label>
         </div>
       )}
+      <div style={{ marginBottom: '1rem' }}>
+        <label>
+          <input type="checkbox" checked={selectedProject.is_published} onChange={handleTogglePublish} />{' '}
+          Publish to Gallery
+        </label>
+      </div>
       {saveStatus && <p>{saveStatus}</p>}
 
       {selectedProject.class_id && (

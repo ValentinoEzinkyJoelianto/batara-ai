@@ -41,16 +41,12 @@ export async function login({ email, password }) {
 }
 
 export async function getMe(token) {
-  const res = await fetch(`${API_BASE}/auth/me`, {
-    headers: authHeaders(token),
-  });
+  const res = await fetch(`${API_BASE}/auth/me`, { headers: authHeaders(token) });
   return handleResponse(res);
 }
 
 export async function listMyProjects(token) {
-  const res = await fetch(`${API_BASE}/projects/me`, {
-    headers: authHeaders(token),
-  });
+  const res = await fetch(`${API_BASE}/projects/me`, { headers: authHeaders(token) });
   return handleResponse(res);
 }
 
@@ -64,9 +60,7 @@ export async function createProject(token, payload) {
 }
 
 export async function getProject(token, id) {
-  const res = await fetch(`${API_BASE}/projects/${id}`, {
-    headers: authHeaders(token),
-  });
+  const res = await fetch(`${API_BASE}/projects/${id}`, { headers: authHeaders(token) });
   return handleResponse(res);
 }
 
@@ -80,9 +74,7 @@ export async function updateProject(token, id, payload) {
 }
 
 export async function listMyClasses(token) {
-  const res = await fetch(`${API_BASE}/classes/mine`, {
-    headers: authHeaders(token),
-  });
+  const res = await fetch(`${API_BASE}/classes/mine`, { headers: authHeaders(token) });
   return handleResponse(res);
 }
 
@@ -113,9 +105,7 @@ export async function enrollStudent(token, classId, studentEmail) {
 }
 
 export async function getClassStudents(token, classId) {
-  const res = await fetch(`${API_BASE}/classes/${classId}/students`, {
-    headers: authHeaders(token),
-  });
+  const res = await fetch(`${API_BASE}/classes/${classId}/students`, { headers: authHeaders(token) });
   return handleResponse(res);
 }
 
@@ -128,16 +118,12 @@ export async function unenrollStudent(token, classId, studentId) {
 }
 
 export async function listClassesImEnrolledIn(token) {
-  const res = await fetch(`${API_BASE}/classes/enrolled-in`, {
-    headers: authHeaders(token),
-  });
+  const res = await fetch(`${API_BASE}/classes/enrolled-in`, { headers: authHeaders(token) });
   return handleResponse(res);
 }
 
 export async function listClassProjects(token, classId) {
-  const res = await fetch(`${API_BASE}/classes/${classId}/projects`, {
-    headers: authHeaders(token),
-  });
+  const res = await fetch(`${API_BASE}/classes/${classId}/projects`, { headers: authHeaders(token) });
   return handleResponse(res);
 }
 
@@ -151,8 +137,58 @@ export async function createReview(token, projectId, payload) {
 }
 
 export async function listReviews(token, projectId) {
-  const res = await fetch(`${API_BASE}/projects/${projectId}/reviews`, {
+  const res = await fetch(`${API_BASE}/projects/${projectId}/reviews`, { headers: authHeaders(token) });
+  return handleResponse(res);
+}
+
+export async function listGallery(token) {
+  const res = await fetch(`${API_BASE}/projects/gallery`, { headers: authHeaders(token) });
+  return handleResponse(res);
+}
+
+export async function likeProject(token, projectId) {
+  const res = await fetch(`${API_BASE}/projects/${projectId}/like`, {
+    method: 'POST',
     headers: authHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+export async function unlikeProject(token, projectId) {
+  const res = await fetch(`${API_BASE}/projects/${projectId}/like`, {
+    method: 'DELETE',
+    headers: authHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+export async function listThreads(token, projectId) {
+  const url = projectId
+    ? `${API_BASE}/forum/threads?project_id=${projectId}`
+    : `${API_BASE}/forum/threads`;
+  const res = await fetch(url, { headers: authHeaders(token) });
+  return handleResponse(res);
+}
+
+export async function createThread(token, payload) {
+  const res = await fetch(`${API_BASE}/forum/threads`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders(token) },
+    body: JSON.stringify(payload),
+  });
+  return handleResponse(res);
+}
+
+export async function listPosts(token, threadId) {
+  const res = await fetch(`${API_BASE}/forum/threads/${threadId}/posts`, { headers: authHeaders(token) });
+  return handleResponse(res);
+}
+
+export async function createPost(token, threadId, payload) {
+  const res = await fetch(`${API_BASE}/forum/threads/${threadId}/posts`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders(token) },
+    body: JSON.stringify(payload),
   });
   return handleResponse(res);
 }
