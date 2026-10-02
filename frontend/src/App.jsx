@@ -105,6 +105,22 @@ function App() {
     setSelectedProject(updated);
     setProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
   }
+  
+  async function handleDeleteProject(project) {
+    if (
+      !window.confirm(
+        `Delete "${project.title}"? This can't be undone — any reviews or gallery likes on it will be removed too.`
+      )
+    ) {
+      return;
+    }
+    try {
+      await api.deleteProject(token, project.id);
+      setProjects((prev) => prev.filter((p) => p.id !== project.id));
+    } catch (err) {
+      setSaveStatus('Error: ' + err.message);
+    }
+  }
 
   async function handleSave() {
     if (!selectedProject) return;
@@ -302,6 +318,17 @@ function App() {
                             In a class
                           </span>
                         )}
+                        <div style={{ marginTop: '0.7rem' }}>
+                          <button
+                            className="btn btn-danger-outline btn-sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteProject(p);
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </div>
                     </div>
                   );

@@ -1,15 +1,18 @@
+
 function toJs(pyValue) {
   try {
     if (Sk.ffi && typeof Sk.ffi.remapToJs === 'function') {
       return Sk.ffi.remapToJs(pyValue);
     }
   } catch {
-    // fall through to the .v fallback below
   }
   return pyValue && pyValue.v !== undefined ? pyValue.v : pyValue;
 }
 
-export function runPythonCode(code, { onPinChange, onOutput, onError }) {
+export function runPythonCode(
+  code,
+  { onPinChange, onOutput, onError, onServoChange, onUltrasonicPing, getUltrasonicDistance }
+) {
   const pinState = {};
   let audioCtx = null;
   let oscillator = null;
@@ -25,7 +28,6 @@ export function runPythonCode(code, { onPinChange, onOutput, onError }) {
         oscillator.stop();
         oscillator.disconnect();
       } catch {
-        // already stopped — ignore
       }
       oscillator = null;
     }
@@ -104,14 +106,17 @@ export function runPythonCode(code, { onPinChange, onOutput, onError }) {
     return Sk.builtin.none.none$;
   });
 
-  Sk.builtins.readUltrasonicDistance = new Sk.builtin.func(() => {
-    return new Sk.builtin.int_(50);
+  Sk.builtins.readUltrasonicDistance = new Sk.builtin.func((trig, echo) => {
+    if (onUltrasonicPing) onUltrasonicPing();
+    const distance = getUltrasonicDistance ? getUltrasonicDistance() : 50;
+    return new Sk.builtin.int_(Math.round(distance));
   });
 
   Sk.builtins.servoWrite = new Sk.builtin.func((pin, angle) => {
     const pinNum = toJs(pin);
     const angleValue = toJs(angle);
     setPin(pinNum, angleValue);
+    if (onServoChange) onServoChange(pinNum, angleValue);
     return Sk.builtin.none.none$;
   });
 

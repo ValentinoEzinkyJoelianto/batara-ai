@@ -143,6 +143,21 @@ async def update_project(
     await db.refresh(project)
     return project
 
+@router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_project(
+    project_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Project).where(Project.id == project_id))
+    project = result.scalar_one_or_none()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    if project.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not your project")
+
+    await db.delete(project)
+    await db.commit()
 
 @router.post("/{project_id}/like", status_code=status.HTTP_204_NO_CONTENT)
 async def like_project(
@@ -233,3 +248,19 @@ async def list_reviews(
         .order_by(InstructorReview.created_at.desc())
     )
     return reviews_result.scalars().all()
+
+@router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_project(
+    project_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Project).where(Project.id == project_id))
+    project = result.scalar_one_or_none()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    if project.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not your project")
+
+    await db.delete(project)
+    await db.commit()

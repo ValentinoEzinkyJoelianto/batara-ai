@@ -141,6 +141,14 @@ export async function listReviews(token, projectId) {
   return handleResponse(res);
 }
 
+export async function deleteProject(token, id) {
+  const res = await fetch(`${API_BASE}/projects/${id}`, {
+    method: 'DELETE',
+    headers: authHeaders(token),
+  });
+  return handleResponse(res);
+}
+
 export async function listGallery(token) {
   const res = await fetch(`${API_BASE}/projects/gallery`, { headers: authHeaders(token) });
   return handleResponse(res);
