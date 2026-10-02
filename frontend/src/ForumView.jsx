@@ -7,6 +7,7 @@ export default function ForumView({ token, onBack }) {
   const [activeThread, setActiveThread] = useState(null);
   const [posts, setPosts] = useState([]);
   const [newPostContent, setNewPostContent] = useState('');
+  const [sort, setSort] = useState('recent');
 
   useEffect(() => {
     refreshThreads();
@@ -59,57 +60,102 @@ export default function ForumView({ token, onBack }) {
 
   if (activeThread) {
     return (
-      <div style={{ padding: '1.5rem', maxWidth: '800px', margin: '0 auto' }}>
-        <button onClick={() => setActiveThread(null)} style={{ marginBottom: '1rem' }}>
-          ← Back to threads
-        </button>
-        <h1>{activeThread.title}</h1>
-        <div>
-          {posts.map((p) => (
-            <div key={p.id} style={{ borderBottom: '1px solid #eee', padding: '0.75rem 0' }}>
-              <strong>{p.author_name}</strong>
-              <span style={{ fontSize: '12px', color: '#888', marginLeft: '0.5rem' }}>
-                {new Date(p.created_at).toLocaleString()}
-              </span>
-              <p style={{ margin: '0.25rem 0 0' }}>{p.content}</p>
-            </div>
-          ))}
-          {posts.length === 0 && <p>No replies yet — be the first.</p>}
+      <div>
+        <div className="navbar">
+          <div className="navbar-logo">{activeThread.title}</div>
+          <div className="navbar-actions">
+            <button className="btn btn-secondary btn-sm" onClick={() => setActiveThread(null)}>
+              ← Back to threads
+            </button>
+          </div>
         </div>
-        <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
-          <input
-            value={newPostContent}
-            onChange={(e) => setNewPostContent(e.target.value)}
-            placeholder="Write a reply..."
-            style={{ flex: 1 }}
-          />
-          <button onClick={handlePostReply}>Reply</button>
+
+        <div className="page-narrow">
+          <div className="card card-padded">
+            {posts.length === 0 && <p className="text-secondary">No replies yet — be the first.</p>}
+            {posts.map((p) => (
+              <div key={p.id} className="post">
+                <strong>{p.author_name}</strong>
+                <span className="text-secondary" style={{ fontSize: '0.75rem', marginLeft: '0.5rem' }}>
+                  {new Date(p.created_at).toLocaleString()}
+                </span>
+                <p style={{ margin: '0.3rem 0 0' }}>{p.content}</p>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
+            <input
+              className="input"
+              value={newPostContent}
+              onChange={(e) => setNewPostContent(e.target.value)}
+              placeholder="Write a reply..."
+              style={{ flex: 1 }}
+            />
+            <button className="btn btn-primary" onClick={handlePostReply}>
+              Reply
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: '1.5rem', maxWidth: '800px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h1>Forum</h1>
-        <button onClick={onBack}>Back to my projects</button>
+    <div>
+      <div className="navbar">
+        <div className="navbar-logo">BATARA-AI</div>
+        <div className="navbar-actions">
+          <button className="btn btn-secondary btn-sm" onClick={onBack}>
+            Back to my projects
+          </button>
+        </div>
       </div>
-      <button onClick={handleNewThread} style={{ marginBottom: '1rem' }}>
-        + New thread
-      </button>
-      {loading && <p>Loading…</p>}
-      {!loading && threads.length === 0 && <p>No discussions yet — start one.</p>}
-      <ul>
-        {threads.map((t) => (
-          <li key={t.id} style={{ marginBottom: '0.5rem' }}>
-            <button onClick={() => openThread(t)}>{t.title}</button>
-            <span style={{ fontSize: '12px', color: '#888', marginLeft: '0.5rem' }}>
-              by {t.author_name} · {t.post_count} {t.post_count === 1 ? 'reply' : 'replies'}
-            </span>
-          </li>
-        ))}
-      </ul>
+
+      <div className="page-narrow">
+        <div className="section-header">
+          <h1>Community <span className="highlight">Forum</span></h1>
+          <button className="btn btn-primary" onClick={handleNewThread}>
+            + New thread
+          </button>
+        </div>
+
+        <div className="pill-row">
+          <button className={`pill ${sort === 'recent' ? 'pill-active' : ''}`} onClick={() => setSort('recent')}>
+            Recent
+          </button>
+          <button className={`pill ${sort === 'replies' ? 'pill-active' : ''}`} onClick={() => setSort('replies')}>
+            Most Replies
+          </button>
+        </div>
+
+        {loading && <p className="text-secondary">Loading…</p>}
+        {!loading && threads.length === 0 && (
+          <div className="card empty-state">No discussions yet — start one.</div>
+        )}
+
+        {[...threads]
+          .sort((a, b) =>
+            sort === 'replies' ? b.post_count - a.post_count : new Date(b.created_at) - new Date(a.created_at)
+          )
+          .map((t) => (
+            <div
+              key={t.id}
+              className="list-row list-row-clickable"
+              onClick={() => openThread(t)}
+            >
+              <div>
+                <div style={{ fontWeight: 600 }}>{t.title}</div>
+                <div className="text-secondary" style={{ fontSize: '0.8rem' }}>
+                  by {t.author_name}
+                </div>
+              </div>
+              <span className="badge badge-muted">
+                {t.post_count} {t.post_count === 1 ? 'reply' : 'replies'}
+              </span>
+            </div>
+          ))}
+      </div>
     </div>
   );
 }

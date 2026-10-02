@@ -1,7 +1,3 @@
-// Skulpt is loaded via classic <script> tags in index.html (see that file
-// for why), which attaches it as a real global — not imported here.
-/* global Sk */
-
 function toJs(pyValue) {
   try {
     if (Sk.ffi && typeof Sk.ffi.remapToJs === 'function') {

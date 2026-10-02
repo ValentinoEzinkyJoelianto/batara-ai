@@ -5,6 +5,7 @@ import InstructorDashboard from './InstructorDashboard';
 import GalleryView from './GalleryView';
 import ForumView from './ForumView';
 import * as api from './api';
+import { thumbColors } from './cardThumb';
 import './App.css';
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
   const [showForum, setShowForum] = useState(false);
 
   const [projects, setProjects] = useState([]);
+  const [projectFilter, setProjectFilter] = useState('all');
   const [selectedProject, setSelectedProject] = useState(null);
   const [saveStatus, setSaveStatus] = useState('');
   const [runTrigger, setRunTrigger] = useState(0);
@@ -99,6 +101,11 @@ function App() {
     latestWorkspace.current = { state, code };
   }
 
+  function applyProjectUpdate(updated) {
+    setSelectedProject(updated);
+    setProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+  }
+
   async function handleSave() {
     if (!selectedProject) return;
     setSaveStatus('Saving...');
@@ -108,7 +115,7 @@ function App() {
         workspace_json: state || {},
         generated_code: code || '',
       });
-      setSelectedProject(updated);
+      applyProjectUpdate(updated);
       setSaveStatus('Saved at ' + new Date().toLocaleTimeString());
     } catch (err) {
       setSaveStatus('Error: ' + err.message);
@@ -125,7 +132,7 @@ function App() {
     if (!selectedProject) return;
     try {
       const updated = await api.updateProject(token, selectedProject.id, { class_id: classId });
-      setSelectedProject(updated);
+      applyProjectUpdate(updated);
     } catch (err) {
       setSaveStatus('Error: ' + err.message);
     }
@@ -137,7 +144,7 @@ function App() {
       const updated = await api.updateProject(token, selectedProject.id, {
         is_published: !selectedProject.is_published,
       });
-      setSelectedProject(updated);
+      applyProjectUpdate(updated);
     } catch (err) {
       setSaveStatus('Error: ' + err.message);
     }
@@ -145,49 +152,61 @@ function App() {
 
   if (!token) {
     return (
-      <div style={{ maxWidth: '400px', margin: '4rem auto', padding: '1rem' }}>
-        <h1>BATARA-AI</h1>
-        <form onSubmit={handleAuthSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      <div className="auth-page">
+      <div className="auth-card">
+        <div className="auth-logo">BATARA-AI</div>
+        <form onSubmit={handleAuthSubmit}>
           {authMode === 'register' && (
+            <div className="field">
+              <label>Name</label>
+              <input
+                className="input"
+                placeholder="Your name"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                required
+              />
+            </div>
+          )}
+          <div className="field">
+            <label>Email</label>
             <input
-              placeholder="Name"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className="input"
+              type="email"
+              placeholder="you@example.com"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
               required
             />
-          )}
-          <input
-            type="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            required
-          />
-          <button type="submit">{authMode === 'login' ? 'Log in' : 'Register'}</button>
+          </div>
+          <div className="field">
+            <label>Password</label>
+            <input
+              className="input"
+              type="password"
+              placeholder="••••••••"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              required
+            />
+          </div>
+          <button type="submit" className="btn btn-primary btn-block">
+            {authMode === 'login' ? 'Log in' : 'Register'}
+          </button>
         </form>
-        {authError && <p style={{ color: 'crimson' }}>{authError}</p>}
-        <button
-          onClick={() => {
-            setAuthMode(authMode === 'login' ? 'register' : 'login');
-            setAuthError('');
-          }}
-          style={{
-            marginTop: '1rem',
-            background: 'none',
-            border: 'none',
-            textDecoration: 'underline',
-            cursor: 'pointer',
-          }}
-        >
-          {authMode === 'login' ? 'Need an account? Register' : 'Already have an account? Log in'}
-        </button>
+        {authError && <p className="text-error" style={{ marginTop: '0.75rem' }}>{authError}</p>}
+        <div style={{ textAlign: 'center', marginTop: '1.25rem' }}>
+          <button
+            className="link-muted"
+            onClick={() => {
+              setAuthMode(authMode === 'login' ? 'register' : 'login');
+              setAuthError('');
+            }}
+          >
+            {authMode === 'login' ? 'Need an account? Register' : 'Already have an account? Log in'}
+          </button>
+        </div>
+      </div>
       </div>
     );
   }
@@ -207,113 +226,174 @@ function App() {
   if (!selectedProject) {
     const isInstructor = user && (user.role === 'instructor' || user.role === 'admin');
     return (
-      <div style={{ maxWidth: '700px', margin: '2rem auto', padding: '1rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h1>Your projects</h1>
-          <div>
+      <div>
+        <div className="navbar">
+          <div className="navbar-logo">BATARA-AI</div>
+          <div className="navbar-menu">
             {isInstructor && (
-              <button onClick={() => setShowInstructorDashboard(true)} style={{ marginRight: '0.5rem' }}>
+              <button className="btn btn-secondary btn-sm" onClick={() => setShowInstructorDashboard(true)}>
                 Instructor Dashboard
               </button>
             )}
-            <button onClick={() => setShowGallery(true)} style={{ marginRight: '0.5rem' }}>
+            <button className="btn btn-secondary btn-sm" onClick={() => setShowGallery(true)}>
               Gallery
             </button>
-            <button onClick={() => setShowForum(true)} style={{ marginRight: '0.5rem' }}>
+            <button className="btn btn-secondary btn-sm" onClick={() => setShowForum(true)}>
               Forum
             </button>
-            <button onClick={handleLogout}>Log out</button>
+          </div>
+          <div className="navbar-actions">
+            <button className="btn btn-danger-outline btn-sm" onClick={handleLogout}>
+              Log out
+            </button>
           </div>
         </div>
-        <button onClick={handleNewProject} style={{ marginBottom: '1rem' }}>
-          + New project
-        </button>
-        <ul>
-          {projects.map((p) => (
-            <li key={p.id} style={{ marginBottom: '0.5rem' }}>
-              <button onClick={() => setSelectedProject(p)}>{p.title}</button>
-            </li>
-          ))}
-        </ul>
-        {projects.length === 0 && <p>No projects yet — create one to get started.</p>}
+
+        <div className="page">
+          <div className="section-header">
+            <h1>Your <span className="highlight">Projects</span></h1>
+            <button className="btn btn-primary" onClick={handleNewProject}>
+              + New project
+            </button>
+          </div>
+
+          <div className="pill-row">
+            <button className={`pill ${projectFilter === 'all' ? 'pill-active' : ''}`} onClick={() => setProjectFilter('all')}>
+              All
+            </button>
+            <button className={`pill ${projectFilter === 'published' ? 'pill-active' : ''}`} onClick={() => setProjectFilter('published')}>
+              Published
+            </button>
+            <button className={`pill ${projectFilter === 'draft' ? 'pill-active' : ''}`} onClick={() => setProjectFilter('draft')}>
+              Not Published
+            </button>
+          </div>
+
+          {(() => {
+            const filtered = projects.filter((p) => {
+              if (projectFilter === 'published') return p.is_published;
+              if (projectFilter === 'draft') return !p.is_published;
+              return true;
+            });
+            if (projects.length === 0) {
+              return <div className="card empty-state">No projects yet — create one to get started.</div>;
+            }
+            if (filtered.length === 0) {
+              return <div className="card empty-state">No projects match this filter.</div>;
+            }
+            return (
+              <div className="card-grid">
+                {filtered.map((p) => {
+                  const [thumbA, thumbB] = thumbColors(p.id);
+                  return (
+                    <div
+                      key={p.id}
+                      className="card card-hover card-with-thumb"
+                      onClick={() => setSelectedProject(p)}
+                    >
+                      <div className="card-thumb" style={{ '--thumb-a': thumbA, '--thumb-b': thumbB }}>
+                        <span className="card-thumb-letter">{p.title.charAt(0).toUpperCase()}</span>
+                        {p.is_published && <span className="badge">Published</span>}
+                      </div>
+                      <div className="card-body">
+                        <h3 style={{ margin: 0 }}>{p.title}</h3>
+                        {p.class_id && (
+                          <span className="badge badge-muted" style={{ marginTop: '0.5rem', display: 'inline-block' }}>
+                            In a class
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: '1.5rem', maxWidth: '1100px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h1>{selectedProject.title}</h1>
-        <div>
-          <button onClick={() => setSelectedProject(null)} style={{ marginRight: '0.5rem' }}>
+    <div>
+      <div className="navbar">
+        <div className="navbar-logo">{selectedProject.title}</div>
+        <div className="navbar-actions">
+          <button className="btn btn-secondary btn-sm" onClick={() => setSelectedProject(null)}>
             Back to projects
           </button>
-          <button onClick={handleRun} style={{ marginRight: '0.5rem' }}>
+          <button className="btn btn-secondary btn-sm" onClick={handleRun}>
             Run
           </button>
-          <button onClick={handleSave}>Save</button>
+          <button className="btn btn-primary btn-sm" onClick={handleSave}>
+            Save
+          </button>
         </div>
       </div>
-      {enrolledClasses.length > 0 && (
-        <div style={{ marginBottom: '1rem' }}>
-          <label>
-            Submit to class:{' '}
-            <select value={selectedProject.class_id || ''} onChange={handleAssignClass}>
-              <option value="">— Not assigned —</option>
-              {enrolledClasses.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+
+      <div className="page">
+        <div className="card card-padded" style={{ marginBottom: '1rem' }}>
+          {enrolledClasses.length > 0 && (
+            <div className="field" style={{ marginBottom: '0.75rem' }}>
+              <label>Submit to class</label>
+              <select className="input" value={selectedProject.class_id || ''} onChange={handleAssignClass}>
+                <option value="">— Not assigned —</option>
+                {enrolledClasses.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600, fontSize: '0.9rem' }}>
+            <input type="checkbox" checked={selectedProject.is_published} onChange={handleTogglePublish} />
+            Publish to Gallery
           </label>
+          {saveStatus && <p className="text-secondary" style={{ margin: '0.5rem 0 0', fontSize: '0.85rem' }}>{saveStatus}</p>}
         </div>
-      )}
-      <div style={{ marginBottom: '1rem' }}>
-        <label>
-          <input type="checkbox" checked={selectedProject.is_published} onChange={handleTogglePublish} />{' '}
-          Publish to Gallery
-        </label>
-      </div>
-      {saveStatus && <p>{saveStatus}</p>}
 
-      {selectedProject.class_id && (
-        <div style={{ marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <h2 style={{ margin: 0 }}>Instructor feedback</h2>
-            <button
-              onClick={() =>
-                api
-                  .listReviews(token, selectedProject.id)
-                  .then(setProjectReviews)
-                  .catch(() => {})
-              }
-              style={{ fontSize: '12px' }}
-            >
-              Refresh
-            </button>
+        {selectedProject.class_id && (
+          <div className="card card-padded" style={{ marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <h2 style={{ margin: 0 }}>Instructor <span className="highlight">feedback</span></h2>
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={() =>
+                  api
+                    .listReviews(token, selectedProject.id)
+                    .then(setProjectReviews)
+                    .catch(() => {})
+                }
+              >
+                Refresh
+              </button>
+            </div>
+            {projectReviews.length === 0 ? (
+              <p className="text-secondary">No feedback yet.</p>
+            ) : (
+              projectReviews.map((r) => (
+                <div key={r.id} className="post">
+                  <span className="badge badge-muted">{r.status}</span>
+                  <p style={{ margin: '0.4rem 0 0.2rem' }}>{r.comment || '(no comment)'}</p>
+                  <span className="text-secondary" style={{ fontSize: '0.8rem' }}>
+                    {new Date(r.created_at).toLocaleString()}
+                  </span>
+                </div>
+              ))
+            )}
           </div>
-          <ul>
-            {projectReviews.map((r) => (
-              <li key={r.id} style={{ marginBottom: '0.5rem' }}>
-                <strong>{r.status}</strong> — {r.comment || '(no comment)'}
-                <br />
-                <span style={{ fontSize: '12px', color: '#888' }}>
-                  {new Date(r.created_at).toLocaleString()}
-                </span>
-              </li>
-            ))}
-          </ul>
-          {projectReviews.length === 0 && <p>No feedback yet.</p>}
-        </div>
-      )}
+        )}
 
-      <BlocklyEditor
-        key={selectedProject.id}
-        initialState={selectedProject.workspace_json}
-        onChange={handleWorkspaceChange}
-      />
-      <ArduinoSimulator code={runCode} runTrigger={runTrigger} />
+        <div className="card card-padded">
+          <BlocklyEditor
+            key={selectedProject.id}
+            initialState={selectedProject.workspace_json}
+            onChange={handleWorkspaceChange}
+          />
+          <ArduinoSimulator code={runCode} runTrigger={runTrigger} />
+        </div>
+      </div>
     </div>
   );
 }

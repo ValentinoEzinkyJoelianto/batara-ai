@@ -10,6 +10,7 @@ export default function InstructorDashboard({ token, onBack }) {
   const [roster, setRoster] = useState([]);
   const [classProjects, setClassProjects] = useState([]);
   const [newClassName, setNewClassName] = useState('');
+  const [classSort, setClassSort] = useState('name');
   const [enrollEmail, setEnrollEmail] = useState('');
   const [statusMsg, setStatusMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -146,148 +147,242 @@ export default function InstructorDashboard({ token, onBack }) {
 
   if (reviewingProject) {
     return (
-      <div style={{ maxWidth: '800px', margin: '2rem auto', padding: '1rem' }}>
-        <button onClick={() => setReviewingProject(null)} style={{ marginBottom: '1rem' }}>
-          Back to class
-        </button>
-        <h1>{reviewingProject.title}</h1>
-        <p>
-          By {reviewingProject.owner_name} ({reviewingProject.owner_email})
-        </p>
-        <h2>Blocks</h2>
-        <BlocklyViewer workspaceState={projectDetail && projectDetail.workspace_json} />
-        <h2>Generated code</h2>
-        <pre
-          style={{
-            background: '#1e1e1e',
-            color: '#d4d4d4',
-            padding: '1rem',
-            borderRadius: '8px',
-            fontSize: '13px',
-            overflow: 'auto',
-            whiteSpace: 'pre-wrap',
-          }}
-        >
-          {(projectDetail && projectDetail.generated_code) || '(no code generated yet)'}
-        </pre>
+      <div>
+        <div className="navbar">
+          <div className="navbar-logo">{reviewingProject.title}</div>
+          <div className="navbar-actions">
+            <button className="btn btn-secondary btn-sm" onClick={() => setReviewingProject(null)}>
+              Back to class
+            </button>
+          </div>
+        </div>
 
-        <h2>Submit a review</h2>
-        <form onSubmit={handleSubmitReview} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxWidth: '500px' }}>
-          <select value={reviewStatus} onChange={(e) => setReviewStatus(e.target.value)}>
-            {REVIEW_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-          <textarea
-            placeholder="Comment (optional)"
-            value={reviewComment}
-            onChange={(e) => setReviewComment(e.target.value)}
-            rows={3}
-          />
-          <button type="submit">Submit review</button>
-        </form>
-        {statusMsg && <p style={{ color: 'green' }}>{statusMsg}</p>}
-        {errorMsg && <p style={{ color: 'crimson' }}>{errorMsg}</p>}
+        <div className="page-narrow">
+          <p className="text-secondary">
+            By {reviewingProject.owner_name} ({reviewingProject.owner_email})
+          </p>
 
-        <h2>Review history</h2>
-        <ul>
-          {reviews.map((r) => (
-            <li key={r.id} style={{ marginBottom: '0.5rem' }}>
-              <strong>{r.status}</strong> — {r.comment || '(no comment)'}
-              <br />
-              <span style={{ fontSize: '12px', color: '#888' }}>
-                {new Date(r.created_at).toLocaleString()}
-              </span>
-            </li>
-          ))}
-        </ul>
-        {reviews.length === 0 && <p>No reviews yet.</p>}
+          <div className="section-header" style={{ marginTop: '1.5rem' }}>
+            <h2>Blocks</h2>
+          </div>
+          <div className="card card-padded" style={{ marginBottom: '1.5rem' }}>
+            <BlocklyViewer workspaceState={projectDetail && projectDetail.workspace_json} />
+          </div>
+
+          <div className="section-header">
+            <h2>Generated <span className="highlight">code</span></h2>
+          </div>
+          <div className="card" style={{ marginBottom: '1.5rem', overflow: 'hidden' }}>
+            <pre
+              style={{
+                background: '#1e1e1e',
+                color: '#d4d4d4',
+                padding: '1rem',
+                margin: 0,
+                fontSize: '13px',
+                overflow: 'auto',
+                whiteSpace: 'pre-wrap',
+              }}
+            >
+              {(projectDetail && projectDetail.generated_code) || '(no code generated yet)'}
+            </pre>
+          </div>
+
+          <div className="section-header">
+            <h2>Submit a <span className="highlight">review</span></h2>
+          </div>
+          <div className="card card-padded" style={{ marginBottom: '1.5rem' }}>
+            <form onSubmit={handleSubmitReview}>
+              <div className="field">
+                <label>Status</label>
+                <select className="input" value={reviewStatus} onChange={(e) => setReviewStatus(e.target.value)}>
+                  {REVIEW_STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="field">
+                <label>Comment (optional)</label>
+                <textarea
+                  className="input"
+                  placeholder="Leave feedback for the student..."
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  rows={3}
+                  style={{ resize: 'vertical', fontFamily: 'inherit' }}
+                />
+              </div>
+              <button type="submit" className="btn btn-primary">
+                Submit review
+              </button>
+            </form>
+            {statusMsg && <p className="text-success" style={{ marginBottom: 0 }}>{statusMsg}</p>}
+            {errorMsg && <p className="text-error" style={{ marginBottom: 0 }}>{errorMsg}</p>}
+          </div>
+
+          <div className="section-header">
+            <h2>Review <span className="highlight">history</span></h2>
+          </div>
+          {reviews.length === 0 ? (
+            <div className="card empty-state">No reviews yet.</div>
+          ) : (
+            <div className="card card-padded">
+              {reviews.map((r) => (
+                <div key={r.id} className="post">
+                  <span className="badge badge-muted">{r.status}</span>
+                  <p style={{ margin: '0.4rem 0 0.2rem' }}>{r.comment || '(no comment)'}</p>
+                  <span className="text-secondary" style={{ fontSize: '0.8rem' }}>
+                    {new Date(r.created_at).toLocaleString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     );
   }
 
   if (selectedClass) {
     return (
-      <div style={{ maxWidth: '700px', margin: '2rem auto', padding: '1rem' }}>
-        <button onClick={() => setSelectedClass(null)} style={{ marginBottom: '1rem' }}>
-          Back to classes
-        </button>
-        <h1>{selectedClass.name}</h1>
+      <div>
+        <div className="navbar">
+          <div className="navbar-logo">{selectedClass.name}</div>
+          <div className="navbar-actions">
+            <button className="btn btn-secondary btn-sm" onClick={() => setSelectedClass(null)}>
+              Back to classes
+            </button>
+          </div>
+        </div>
 
-        <form onSubmit={handleEnroll} style={{ display: 'flex', gap: '0.5rem', margin: '1rem 0' }}>
-          <input
-            type="email"
-            placeholder="Student's email"
-            value={enrollEmail}
-            onChange={(e) => setEnrollEmail(e.target.value)}
-            style={{ flex: 1 }}
-          />
-          <button type="submit">Enroll</button>
-        </form>
-        {statusMsg && <p style={{ color: 'green' }}>{statusMsg}</p>}
-        {errorMsg && <p style={{ color: 'crimson' }}>{errorMsg}</p>}
-
-        <h2>Roster ({roster.length})</h2>
-        <ul>
-          {roster.map((s) => (
-            <li key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-              <span>
-                {s.name} — {s.email}
-              </span>
-              <button onClick={() => handleUnenroll(s.id)} style={{ fontSize: '12px' }}>
-                Remove
+        <div className="page-narrow">
+          <div className="card card-padded" style={{ marginBottom: '1.5rem' }}>
+            <form onSubmit={handleEnroll} style={{ display: 'flex', gap: '0.5rem' }}>
+              <input
+                className="input"
+                type="email"
+                placeholder="Student's email"
+                value={enrollEmail}
+                onChange={(e) => setEnrollEmail(e.target.value)}
+                style={{ flex: 1 }}
+              />
+              <button type="submit" className="btn btn-primary">
+                Enroll
               </button>
-            </li>
-          ))}
-        </ul>
-        {roster.length === 0 && <p>No students enrolled yet.</p>}
+            </form>
+            {statusMsg && <p className="text-success" style={{ margin: '0.5rem 0 0' }}>{statusMsg}</p>}
+            {errorMsg && <p className="text-error" style={{ margin: '0.5rem 0 0' }}>{errorMsg}</p>}
+          </div>
 
-        <h2>Submitted projects ({classProjects.length})</h2>
-        <ul>
-          {classProjects.map((p) => (
-            <li key={p.id} style={{ marginBottom: '0.5rem' }}>
-              <button onClick={() => openProjectForReview(p)}>
-                {p.title} — {p.owner_name}
-              </button>
-            </li>
-          ))}
-        </ul>
-        {classProjects.length === 0 && <p>No projects submitted to this class yet.</p>}
+          <div className="section-header">
+            <h2>Roster <span className="highlight">({roster.length})</span></h2>
+          </div>
+          {roster.length === 0 ? (
+            <div className="card empty-state">No students enrolled yet.</div>
+          ) : (
+            roster.map((s) => (
+              <div key={s.id} className="list-row">
+                <span>
+                  {s.name} — {s.email}
+                </span>
+                <button className="btn btn-danger-outline btn-sm" onClick={() => handleUnenroll(s.id)}>
+                  Remove
+                </button>
+              </div>
+            ))
+          )}
+
+          <div className="section-header" style={{ marginTop: '1.5rem' }}>
+            <h2>Submitted <span className="highlight">projects ({classProjects.length})</span></h2>
+          </div>
+          {classProjects.length === 0 ? (
+            <div className="card empty-state">No projects submitted to this class yet.</div>
+          ) : (
+            classProjects.map((p) => (
+              <div
+                key={p.id}
+                className="list-row list-row-clickable"
+                onClick={() => openProjectForReview(p)}
+              >
+                <div>
+                  <div style={{ fontWeight: 600 }}>{p.title}</div>
+                  <div className="text-secondary" style={{ fontSize: '0.8rem' }}>{p.owner_name}</div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: '700px', margin: '2rem auto', padding: '1rem' }}>
-      <button onClick={onBack} style={{ marginBottom: '1rem' }}>
-        Back to projects
-      </button>
-      <h1>Your classes</h1>
+    <div>
+      <div className="navbar">
+        <div className="navbar-logo">BATARA-AI</div>
+        <div className="navbar-actions">
+          <button className="btn btn-secondary btn-sm" onClick={onBack}>
+            Back to projects
+          </button>
+        </div>
+      </div>
 
-      <form onSubmit={handleCreateClass} style={{ display: 'flex', gap: '0.5rem', margin: '1rem 0' }}>
-        <input
-          placeholder="New class name"
-          value={newClassName}
-          onChange={(e) => setNewClassName(e.target.value)}
-          style={{ flex: 1 }}
-        />
-        <button type="submit">Create class</button>
-      </form>
-      {errorMsg && <p style={{ color: 'crimson' }}>{errorMsg}</p>}
+      <div className="page-narrow">
+        <div className="section-header">
+          <h1>Your <span className="highlight">Classes</span></h1>
+        </div>
 
-      <ul>
-        {classes.map((c) => (
-          <li key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-            <button onClick={() => openClass(c)}>{c.name}</button>
-            <button onClick={() => handleDeleteClass(c.id)} style={{ fontSize: '12px' }}>
-              Delete
+        <div className="card card-padded" style={{ marginBottom: '1.5rem' }}>
+          <form onSubmit={handleCreateClass} style={{ display: 'flex', gap: '0.5rem' }}>
+            <input
+              className="input"
+              placeholder="New class name"
+              value={newClassName}
+              onChange={(e) => setNewClassName(e.target.value)}
+              style={{ flex: 1 }}
+            />
+            <button type="submit" className="btn btn-primary">
+              Create class
             </button>
-          </li>
-        ))}
-      </ul>
-      {classes.length === 0 && <p>No classes yet — create one above.</p>}
+          </form>
+          {errorMsg && <p className="text-error" style={{ margin: '0.5rem 0 0' }}>{errorMsg}</p>}
+        </div>
+
+                {classes.length > 0 && (
+          <div className="pill-row">
+            <button className={`pill ${classSort === 'name' ? 'pill-active' : ''}`} onClick={() => setClassSort('name')}>
+              Name
+            </button>
+            <button className={`pill ${classSort === 'recent' ? 'pill-active' : ''}`} onClick={() => setClassSort('recent')}>
+              Newest
+            </button>
+          </div>
+        )}
+
+        {classes.length === 0 ? (
+          <div className="card empty-state">No classes yet — create one above.</div>
+        ) : (
+          [...classes]
+            .sort((a, b) =>
+              classSort === 'name' ? a.name.localeCompare(b.name) : new Date(b.created_at) - new Date(a.created_at)
+            )
+            .map((c) => (
+              <div key={c.id} className="list-row">
+                <span
+                  style={{ fontWeight: 600, cursor: 'pointer', flex: 1 }}
+                  onClick={() => openClass(c)}
+                >
+                  {c.name}
+                </span>
+                <button className="btn btn-danger-outline btn-sm" onClick={() => handleDeleteClass(c.id)}>
+                  Delete
+                </button>
+              </div>
+            ))
+        )}
+      </div>
     </div>
   );
 }
