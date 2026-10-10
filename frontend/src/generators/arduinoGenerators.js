@@ -91,7 +91,7 @@ export function splitShim(code) {
   return { shim, program };
 }
 
-function useShim(gen) {
+function addShim(gen) {
   gen.definitions_.batara_shim = SHIM;
 }
 
@@ -101,7 +101,7 @@ const val = (block, gen, name, dflt = '0', order = Order.NONE) => gen.valueToCod
 const HAT_TYPES = new Set(['event_when_start', 'event_when_key', 'event_when_pin', 'event_when_message']);
 
 function hatCode(block, gen, base, register) {
-  useShim(gen);
+  addShim(gen);
   const next = block.getNextBlock();
   let body = next ? gen.blockToCode(next) : '';
   if (Array.isArray(body)) body = body[0];
@@ -116,55 +116,55 @@ function hatCode(block, gen, base, register) {
 
 export const forBlock = {
   arduino_pin_mode(block, gen) {
-    useShim(gen);
+    addShim(gen);
     return `pinMode(${block.getFieldValue('PIN')}, '${block.getFieldValue('MODE')}')\n`;
   },
   arduino_digital_write(block, gen) {
-    useShim(gen);
+    addShim(gen);
     return `digitalWrite(${block.getFieldValue('PIN')}, '${block.getFieldValue('STATE')}')\n`;
   },
   arduino_digital_read(block, gen) {
-    useShim(gen);
+    addShim(gen);
     return [`digitalRead(${block.getFieldValue('PIN')})`, Order.FUNCTION_CALL];
   },
   arduino_analog_read(block, gen) {
-    useShim(gen);
+    addShim(gen);
     return [`analogRead('${block.getFieldValue('PIN')}')`, Order.FUNCTION_CALL];
   },
   arduino_analog_write(block, gen) {
-    useShim(gen);
+    addShim(gen);
     return `analogWrite(${block.getFieldValue('PIN')}, ${val(block, gen, 'VALUE')})\n`;
   },
   arduino_delay(block, gen) {
-    useShim(gen);
+    addShim(gen);
     return `delay(${val(block, gen, 'MS')})\n`;
   },
   arduino_tone(block, gen) {
-    useShim(gen);
+    addShim(gen);
     return `tone(${block.getFieldValue('PIN')}, ${val(block, gen, 'FREQUENCY')})\n`;
   },
   arduino_tone_duration(block, gen) {
-    useShim(gen);
+    addShim(gen);
     return `tone(${block.getFieldValue('PIN')}, ${val(block, gen, 'FREQUENCY')}, ${val(block, gen, 'DURATION')})\n`;
   },
   arduino_no_tone(block, gen) {
-    useShim(gen);
+    addShim(gen);
     return `noTone(${block.getFieldValue('PIN')})\n`;
   },
   arduino_ultrasonic_read(block, gen) {
-    useShim(gen);
+    addShim(gen);
     return [`readUltrasonic(${block.getFieldValue('TRIG_PIN')}, ${block.getFieldValue('ECHO_PIN')})`, Order.FUNCTION_CALL];
   },
   arduino_servo_write(block, gen) {
-    useShim(gen);
+    addShim(gen);
     return `servoWrite(${block.getFieldValue('PIN')}, ${val(block, gen, 'ANGLE')})\n`;
   },
   arduino_button_pressed(block, gen) {
-    useShim(gen);
+    addShim(gen);
     return [`digitalRead(${block.getFieldValue('PIN')}) == 0`, Order.RELATIONAL];
   },
   arduino_millis(block, gen) {
-    useShim(gen);
+    addShim(gen);
     return ['millis()', Order.FUNCTION_CALL];
   },
   arduino_map(block, gen) {
@@ -181,29 +181,29 @@ export const forBlock = {
   event_when_pin: (block, gen) => hatCode(block, gen, 'on_pin_' + block.getFieldValue('PIN'), (n) => `when_pin(${block.getFieldValue('PIN')}, '${block.getFieldValue('EDGE')}', ${n})\n`),
   event_when_message: (block, gen) => hatCode(block, gen, 'on_message', (n) => `when_message(${pyStr(block.getFieldValue('MESSAGE'))}, ${n})\n`),
   event_broadcast(block, gen) {
-    useShim(gen);
+    addShim(gen);
     return `broadcast(${pyStr(block.getFieldValue('MESSAGE'))})\n`;
   },
   event_broadcast_wait(block, gen) {
-    useShim(gen);
+    addShim(gen);
     return `broadcast_and_wait(${pyStr(block.getFieldValue('MESSAGE'))})\n`;
   },
 
   control_forever(block, gen) {
-    useShim(gen);
+    addShim(gen);
     const body = gen.statementToCode(block, 'DO') || gen.PASS;
     return `while True:\n${body}${gen.INDENT}_tick()\n`;
   },
   control_wait_seconds(block, gen) {
-    useShim(gen);
+    addShim(gen);
     return `delay(${val(block, gen, 'SECONDS', '1', Order.MULTIPLICATIVE)} * 1000)\n`;
   },
   control_wait_until(block, gen) {
-    useShim(gen);
+    addShim(gen);
     return `while not (${val(block, gen, 'CONDITION', 'False')}):\n${gen.INDENT}_tick()\n`;
   },
   control_stop_all(block, gen) {
-    useShim(gen);
+    addShim(gen);
     return 'stop_all()\n';
   },
 };
