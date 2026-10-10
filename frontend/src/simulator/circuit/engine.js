@@ -62,8 +62,6 @@ export function evaluate(circuit, board = {}) {
   const hasUno = parts.some((p) => p.id === UNO);
 
   const uf = new UnionFind();
-  for (const p of parts) {
-  }
   for (const w of circuit.wires || []) uf.union(key(w.from.part, w.from.pin), key(w.to.part, w.to.pin));
   if (hasUno) {
     uf.union(key(UNO, 'GND_T'), key(UNO, 'GND_1'));
@@ -89,7 +87,6 @@ export function evaluate(circuit, board = {}) {
 
   const resistors = [];
   const leds = [];
-  const loads = [];
   for (const p of parts) {
     if (p.type === 'resistor') {
       resistors.push({ a: nodeIndex(p.id, 'a'), b: nodeIndex(p.id, 'b'), g: 1 / Math.max(0.01, Number(p.props?.ohms ?? 220)) });

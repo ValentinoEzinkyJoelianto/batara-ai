@@ -1,5 +1,3 @@
-import { toLevel } from './circuit/boardModel.js';
-
 const KEY_ALIASES = { ' ': 'space', arrowup: 'up', arrowdown: 'down', arrowleft: 'left', arrowright: 'right', enter: 'enter' };
 export function normalizeKey(k) {
   const low = String(k).toLowerCase();
