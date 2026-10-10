@@ -1,10 +1,5 @@
 import * as Blockly from 'blockly/core';
 
-// A friendlier, more colorful palette than Blockly's default "Classic" theme —
-// aimed at secondary school students, closer to the playful feel of Scratch,
-// while keeping Blockly's own rendering engine and Python code generation
-// fully intact underneath. Colors are grouped by block category so students
-// can visually associate shape + color with meaning.
 export const bataraTheme = Blockly.Theme.defineTheme('batara', {
   base: Blockly.Themes.Classic,
   blockStyles: {

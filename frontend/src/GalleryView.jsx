@@ -11,7 +11,6 @@ export default function GalleryView({ token, onBack }) {
 
   useEffect(() => {
     refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function refresh() {
@@ -20,7 +19,6 @@ export default function GalleryView({ token, onBack }) {
       const data = await api.listGallery(token);
       setProjects(data);
     } catch (err) {
-      // leave projects as-is on error
     }
     setLoading(false);
   }
@@ -34,7 +32,6 @@ export default function GalleryView({ token, onBack }) {
       }
       await refresh();
     } catch (err) {
-      // ignore for now
     }
   }
 

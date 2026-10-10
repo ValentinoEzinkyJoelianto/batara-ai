@@ -7,7 +7,6 @@ async function handleResponse(res) {
       const data = await res.json();
       detail = data.detail || detail;
     } catch {
-      // response wasn't JSON — keep statusText
     }
     throw new Error(typeof detail === 'string' ? detail : JSON.stringify(detail));
   }

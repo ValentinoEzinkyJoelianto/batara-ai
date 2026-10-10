@@ -23,7 +23,6 @@ export default function InstructorDashboard({ token, onBack }) {
 
   useEffect(() => {
     refreshClasses();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function refreshClasses() {

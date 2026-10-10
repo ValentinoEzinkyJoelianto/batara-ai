@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import BlocklyEditor from './BlocklyEditor';
-import ArduinoSimulator from './ArduinoSimulator';
+import ArduinoSimulator from './simulator/ArduinoSimulator';
+import { normalizeCircuit, emptyCircuit } from './simulator/circuit/circuitState';
 import InstructorDashboard from './InstructorDashboard';
 import GalleryView from './GalleryView';
 import ForumView from './ForumView';
@@ -25,6 +26,7 @@ function App() {
   const [saveStatus, setSaveStatus] = useState('');
   const [runTrigger, setRunTrigger] = useState(0);
   const [runCode, setRunCode] = useState('');
+  const [circuit, setCircuit] = useState(emptyCircuit());
   const [enrolledClasses, setEnrolledClasses] = useState([]);
   const [projectReviews, setProjectReviews] = useState([]);
 
@@ -36,7 +38,6 @@ function App() {
       api.getMe(token).then(setUser).catch(() => {});
       api.listClassesImEnrolledIn(token).then(setEnrolledClasses).catch(() => {});
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   useEffect(() => {
@@ -48,7 +49,10 @@ function App() {
     } else {
       setProjectReviews([]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedProject?.id]);
+
+  useEffect(() => {
+    setCircuit(normalizeCircuit(selectedProject?.workspace_json?.__circuit));
   }, [selectedProject?.id]);
 
   async function refreshProjects() {
@@ -128,7 +132,7 @@ function App() {
     try {
       const { state, code } = latestWorkspace.current;
       const updated = await api.updateProject(token, selectedProject.id, {
-        workspace_json: state || {},
+        workspace_json: { ...(state || selectedProject.workspace_json || {}), __circuit: circuit },
         generated_code: code || '',
       });
       applyProjectUpdate(updated);
@@ -346,7 +350,13 @@ function App() {
       <div className="navbar">
         <div className="navbar-logo">{selectedProject.title}</div>
         <div className="navbar-actions">
-          <button className="btn btn-secondary btn-sm" onClick={() => setSelectedProject(null)}>
+          <button
+            className="btn btn-secondary btn-sm"
+            onClick={() => {
+              latestWorkspace.current = { state: null, code: '' };
+              setSelectedProject(null);
+            }}
+          >
             Back to projects
           </button>
           <button className="btn btn-secondary btn-sm" onClick={handleRun}>
@@ -418,7 +428,12 @@ function App() {
             initialState={selectedProject.workspace_json}
             onChange={handleWorkspaceChange}
           />
-          <ArduinoSimulator code={runCode} runTrigger={runTrigger} />
+          <ArduinoSimulator
+            code={runCode}
+            runTrigger={runTrigger}
+            circuit={circuit}
+            onCircuitChange={(c) => setCircuit(c ? normalizeCircuit(c) : emptyCircuit())}
+          />
         </div>
       </div>
     </div>

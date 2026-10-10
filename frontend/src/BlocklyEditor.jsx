@@ -6,15 +6,15 @@ import * as en from 'blockly/msg/en';
 import { toolboxXml } from './toolbox';
 import { bataraTheme } from './theme';
 import './blocks/arduinoBlocks';
-import { forBlock as arduinoForBlock } from './generators/arduinoGenerators';
+import './generators/arduinoGenerators';
 
 Blockly.setLocale(en);
-Object.assign(pythonGenerator.forBlock, arduinoForBlock);
 
 export default function BlocklyEditor({ initialState, onChange }) {
   const blocklyDivRef = useRef(null);
   const workspaceRef = useRef(null);
   const [pythonCode, setPythonCode] = useState('');
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const toolbox = Blockly.utils.xml.textToDom(toolboxXml);
@@ -47,27 +47,45 @@ export default function BlocklyEditor({ initialState, onChange }) {
       workspace.removeChangeListener(handleChange);
       workspace.dispose();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(pythonCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+    }
+  }
 
   return (
     <div style={{ display: 'flex', height: '600px', gap: '1rem' }}>
       <div ref={blocklyDivRef} style={{ flex: 2, height: '100%' }} />
-      <pre
-        style={{
-          flex: 1,
-          height: '100%',
-          margin: 0,
-          background: '#1e1e1e',
-          color: '#d4d4d4',
-          padding: '1rem',
-          overflow: 'auto',
-          fontSize: '13px',
-          borderRadius: '8px',
-        }}
-      >
-        {pythonCode || '# Drag blocks in to generate Python code'}
-      </pre>
+      <div style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', gap: '0.5rem', minWidth: 0 }}>
+        <pre
+          style={{
+            flex: 1,
+            minHeight: 0,
+            margin: 0,
+            background: '#1e1e1e',
+            color: '#d4d4d4',
+            padding: '1rem',
+            overflow: 'auto',
+            fontSize: '13px',
+            borderRadius: '8px',
+          }}
+        >
+          {pythonCode || '# Drag blocks in to generate Python code'}
+        </pre>
+        <button
+          type="button"
+          className="btn btn-secondary btn-sm"
+          onClick={handleCopy}
+          disabled={!pythonCode}
+        >
+          {copied ? 'Copied!' : 'Copy code'}
+        </button>
+      </div>
     </div>
   );
 }

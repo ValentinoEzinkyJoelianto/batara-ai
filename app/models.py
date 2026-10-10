@@ -7,8 +7,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 
-# This mirrors the enum type schema.sql already created in Postgres.
-# create_type=False stops SQLAlchemy from trying to CREATE TYPE again.
 UserRole = ENUM("student", "it_smart", "instructor", "admin", name="user_role", create_type=False)
 ReviewStatus = ENUM("pending", "reviewed", "needs_revision", "approved", name="review_status", create_type=False)
 

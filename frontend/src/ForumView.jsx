@@ -11,7 +11,6 @@ export default function ForumView({ token, onBack }) {
 
   useEffect(() => {
     refreshThreads();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function refreshThreads() {
@@ -20,7 +19,6 @@ export default function ForumView({ token, onBack }) {
       const data = await api.listThreads(token);
       setThreads(data);
     } catch (err) {
-      // leave threads as-is on error
     }
     setLoading(false);
   }
@@ -42,7 +40,6 @@ export default function ForumView({ token, onBack }) {
       await api.createThread(token, { title });
       await refreshThreads();
     } catch (err) {
-      // ignore for now
     }
   }
 
@@ -54,7 +51,6 @@ export default function ForumView({ token, onBack }) {
       const data = await api.listPosts(token, activeThread.id);
       setPosts(data);
     } catch (err) {
-      // ignore for now
     }
   }
 

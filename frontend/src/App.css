@@ -26,7 +26,6 @@ body {
   margin: 0;
 }
 
-/* ---------- Buttons ---------- */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -52,12 +51,6 @@ body {
 .btn-block { width: 100%; }
 .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
 
-/* ---------- Top nav ----------
-   3-column grid (logo | menu | actions) so the menu is truly centered
-   on the navbar regardless of how wide the logo or actions side is.
-   Each piece has an explicit grid-column, so pages that only render
-   navbar-logo + navbar-actions (no menu) still keep actions pinned
-   to the right instead of drifting into the middle column. */
 .navbar {
   background: white;
   border-bottom: 1px solid var(--color-border);
@@ -89,11 +82,9 @@ body {
   align-items: center;
 }
 
-/* ---------- Page containers ---------- */
 .page { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
 .page-narrow { max-width: 900px; margin: 0 auto; padding: 1.5rem; }
 
-/* ---------- Section header: title + highlighted word + link ---------- */
 .section-header {
   display: flex;
   align-items: baseline;
@@ -106,7 +97,6 @@ h1, h2, h3 { color: var(--color-text); font-weight: 700; }
 .section-header h1, .section-header h2 { margin: 0; }
 .highlight { color: var(--color-primary); font-weight: 800; }
 
-/* ---------- Cards ---------- */
 .card {
   background: var(--color-card);
   border: 1px solid var(--color-border);
@@ -123,7 +113,6 @@ h1, h2, h3 { color: var(--color-text); font-weight: 700; }
   gap: 1.1rem;
 }
 
-/* ---------- Badges ---------- */
 .badge {
   display: inline-block;
   background: var(--color-primary);
@@ -136,7 +125,6 @@ h1, h2, h3 { color: var(--color-text); font-weight: 700; }
 .badge-success { background: #DCFCE7; color: var(--color-success); }
 .badge-muted { background: #F1F5F9; color: var(--color-text-secondary); }
 
-/* ---------- List rows (used where a grid is too much, e.g. forum threads) ---------- */
 .list-row {
   display: flex;
   align-items: center;
@@ -151,7 +139,6 @@ h1, h2, h3 { color: var(--color-text); font-weight: 700; }
 .list-row-clickable { cursor: pointer; transition: border-color 0.15s ease; }
 .list-row-clickable:hover { border-color: var(--color-primary); }
 
-/* ---------- Auth ---------- */
 .auth-page {
   min-height: 100vh;
   display: flex;
@@ -176,7 +163,6 @@ h1, h2, h3 { color: var(--color-text); font-weight: 700; }
   letter-spacing: -0.02em;
 }
 
-/* ---------- Form elements ---------- */
 .input, select.input {
   width: 100%;
   padding: 0.65rem 0.8rem;
@@ -191,7 +177,6 @@ h1, h2, h3 { color: var(--color-text); font-weight: 700; }
 .field { margin-bottom: 1rem; }
 .field label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--color-text); }
 
-/* ---------- Misc text helpers ---------- */
 .link-muted {
   color: var(--color-text-secondary);
   text-decoration: underline;
@@ -207,14 +192,12 @@ h1, h2, h3 { color: var(--color-text); font-weight: 700; }
 .text-error { color: var(--color-danger); }
 .empty-state { color: var(--color-text-secondary); text-align: center; padding: 2.5rem 1rem; }
 
-/* ---------- Reply thread ---------- */
 .post {
   border-bottom: 1px solid var(--color-border);
   padding: 0.9rem 0;
 }
 .post:last-child { border-bottom: none; }
 
-/* ---------- Pills (filter/sort row) ---------- */
 .pill-row {
   display: flex;
   gap: 0.5rem;
@@ -236,7 +219,6 @@ h1, h2, h3 { color: var(--color-text); font-weight: 700; }
 .pill:hover { border-color: var(--color-primary); }
 .pill-active { background: var(--color-primary); border-color: var(--color-primary); color: white; }
 
-/* ---------- Card thumbnail with overlay badge ---------- */
 .card-with-thumb { padding: 0; overflow: hidden; }
 .card-with-thumb .card-body { padding: 1rem 1.1rem 1.1rem; }
 .card-thumb {

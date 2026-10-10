@@ -5,9 +5,6 @@ from sqlalchemy.orm import DeclarativeBase
 
 from app.config import settings
 
-# Neon gives you a postgresql:// URL with ?sslmode=require. The asyncpg driver
-# doesn't understand that query param the same way psycopg2 does, so we strip
-# it and pass SSL explicitly via connect_args instead.
 raw_url = settings.database_url.split("?")[0]
 async_url = raw_url.replace("postgresql://", "postgresql+asyncpg://", 1)
 
