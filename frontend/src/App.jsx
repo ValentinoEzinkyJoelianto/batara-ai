@@ -304,7 +304,7 @@ function App() {
   }
 
   if (!selectedProject) {
-    const isInstructor = user && (user.role === 'instructor' || user.role === 'admin');
+    const isInstructor = user && user.role === 'instructor';
     return (
       <div>
         <div className="navbar">

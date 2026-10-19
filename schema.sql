@@ -5,7 +5,7 @@
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto"; -- for gen_random_uuid()
 
-CREATE TYPE user_role AS ENUM ('student', 'it_smart', 'instructor', 'admin');
+CREATE TYPE user_role AS ENUM ('student', 'instructor');
 CREATE TYPE review_status AS ENUM ('pending', 'reviewed', 'needs_revision', 'approved');
 
 -- ============================================================
