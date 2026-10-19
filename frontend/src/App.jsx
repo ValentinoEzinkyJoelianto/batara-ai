@@ -10,7 +10,7 @@ import { thumbColors } from './cardThumb';
 import './App.css';
 
 function App() {
-  const [token, setToken] = useState(() => localStorage.getItem('token'));
+  const [token, setToken] = useState(() => sessionStorage.getItem('token'));
   const [authMode, setAuthMode] = useState('login');
   const [authError, setAuthError] = useState('');
   const [form, setForm] = useState({ name: '', email: '', password: '' });
@@ -75,7 +75,7 @@ function App() {
         return;
       }
       const { access_token } = await api.login(form);
-      localStorage.setItem('token', access_token);
+      sessionStorage.setItem('token', access_token);
       setToken(access_token);
     } catch (err) {
       setAuthError(err.message);
@@ -83,7 +83,7 @@ function App() {
   }
 
   function handleLogout() {
-    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
     setToken(null);
     setUser(null);
     setProjects([]);
