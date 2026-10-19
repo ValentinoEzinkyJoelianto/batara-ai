@@ -237,3 +237,22 @@ h1, h2, h3 { color: var(--color-text); font-weight: 700; }
 }
 .card-thumb .badge { position: absolute; top: 0.55rem; right: 0.55rem; }
 .badge-btn { border: none; cursor: pointer; }
+
+.spinner {
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  margin-right: 0.5rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  vertical-align: -0.1em;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

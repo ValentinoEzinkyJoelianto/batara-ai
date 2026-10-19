@@ -30,6 +30,10 @@ function App() {
   const [enrolledClasses, setEnrolledClasses] = useState([]);
   const [projectReviews, setProjectReviews] = useState([]);
 
+  const [authLoading, setAuthLoading] = useState(false);
+  const [projectsLoading, setProjectsLoading] = useState(false);
+  const [creating, setCreating] = useState(false);
+
   const latestWorkspace = useRef({ state: null, code: '' });
 
   useEffect(() => {
@@ -56,27 +60,33 @@ function App() {
   }, [selectedProject?.id]);
 
   async function refreshProjects() {
+    setProjectsLoading(true);
     try {
       const data = await api.listMyProjects(token);
       setProjects(data);
     } catch (err) {
       handleLogout();
+    } finally {
+      setProjectsLoading(false);
     }
   }
 
   async function handleAuthSubmit(e) {
     e.preventDefault();
     setAuthError('');
+    if (authMode === 'register') {
+      if (form.password.length < 6) {
+        setAuthError('Password must be at least 6 characters.');
+        return;
+      }
+      if (form.password !== form.confirm) {
+        setAuthError('Passwords do not match.');
+        return;
+      }
+    }
+    setAuthLoading(true);
     try {
       if (authMode === 'register') {
-        if (form.password.length < 6) {
-          setAuthError('Password must be at least 6 characters.');
-          return;
-        }
-        if (form.password !== form.confirm) {
-          setAuthError('Passwords do not match.');
-          return;
-        }
         await api.register({ name: form.name, email: form.email, password: form.password });
         setForm({ name: '', email: form.email, password: '', confirm: '' });
         setAuthMode('login');
@@ -88,11 +98,14 @@ function App() {
       setToken(access_token);
     } catch (err) {
       setAuthError(err.message);
+    } finally {
+      setAuthLoading(false);
     }
   }
 
   function handleLogout() {
     sessionStorage.removeItem('token');
+    setForm({ name: '', email: '', password: '', confirm: '' });
     setToken(null);
     setUser(null);
     setProjects([]);
@@ -105,9 +118,16 @@ function App() {
   async function handleNewProject() {
     const title = window.prompt('Project title?', 'Untitled project');
     if (!title) return;
-    const project = await api.createProject(token, { title, workspace_json: {} });
-    await refreshProjects();
-    setSelectedProject(project);
+    setCreating(true);
+    try {
+      const project = await api.createProject(token, { title, workspace_json: {} });
+      await refreshProjects();
+      setSelectedProject(project);
+    } catch (err) {
+      window.alert('Could not create project: ' + err.message);
+    } finally {
+      setCreating(false);
+    }
   }
 
   function handleWorkspaceChange({ state, code }) {
@@ -234,9 +254,17 @@ function App() {
               />
             </div>
           )}
-          <button type="submit" className="btn btn-primary btn-block">
-            {authMode === 'login' ? 'Log in' : 'Register'}
+          <button type="submit" className="btn btn-primary btn-block" disabled={authLoading}>
+            {authLoading && <span className="spinner" />}
+            {authLoading
+              ? (authMode === 'login' ? 'Logging in...' : 'Registering...')
+              : (authMode === 'login' ? 'Log in' : 'Register')}
           </button>
+          {authLoading && (
+            <p className="text-secondary" style={{ marginTop: '0.75rem', fontSize: '0.85rem', textAlign: 'center' }}>
+              Waking up the server, the first request can take a few seconds.
+            </p>
+          )}
         </form>
         {authError && <p className="text-error" style={{ marginTop: '0.75rem' }}>{authError}</p>}
         <div style={{ textAlign: 'center', marginTop: '1.25rem' }}>
@@ -297,8 +325,9 @@ function App() {
         <div className="page">
           <div className="section-header">
             <h1>Your <span className="highlight">Projects</span></h1>
-            <button className="btn btn-primary" onClick={handleNewProject}>
-              + New project
+            <button className="btn btn-primary" onClick={handleNewProject} disabled={creating}>
+              {creating && <span className="spinner" />}
+              {creating ? 'Creating...' : '+ New project'}
             </button>
           </div>
 
@@ -320,6 +349,13 @@ function App() {
               if (projectFilter === 'draft') return !p.is_published;
               return true;
             });
+            if (projectsLoading && projects.length === 0) {
+              return (
+                <div className="card empty-state">
+                  <span className="spinner" /> Loading your projects...
+                </div>
+              );
+            }
             if (projects.length === 0) {
               return <div className="card empty-state">No projects yet — create one to get started.</div>;
             }
@@ -387,7 +423,7 @@ function App() {
           <button className="btn btn-secondary btn-sm" onClick={handleRun}>
             Run
           </button>
-          <button className="btn btn-primary btn-sm" onClick={handleSave}>
+          <button className="btn btn-primary btn-sm" onClick={handleSave} disabled={saveStatus === 'Saving...'}>
             Save
           </button>
         </div>
