@@ -266,7 +266,14 @@ function App() {
             </p>
           )}
         </form>
-        {authError && <p className="text-error" style={{ marginTop: '0.75rem' }}>{authError}</p>}
+        {authError && (
+          <p
+            className={authError.startsWith('Registered') ? 'text-success' : 'text-error'}
+            style={{ marginTop: '0.75rem' }}
+          >
+            {authError}
+          </p>
+        )}
         <div style={{ textAlign: 'center', marginTop: '1.25rem' }}>
           <button
             className="link-muted"
