@@ -13,7 +13,7 @@ function App() {
   const [token, setToken] = useState(() => sessionStorage.getItem('token'));
   const [authMode, setAuthMode] = useState('login');
   const [authError, setAuthError] = useState('');
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' });
 
   const [user, setUser] = useState(null);
   const [showInstructorDashboard, setShowInstructorDashboard] = useState(false);
@@ -69,7 +69,16 @@ function App() {
     setAuthError('');
     try {
       if (authMode === 'register') {
-        await api.register(form);
+        if (form.password.length < 6) {
+          setAuthError('Password must be at least 6 characters.');
+          return;
+        }
+        if (form.password !== form.confirm) {
+          setAuthError('Passwords do not match.');
+          return;
+        }
+        await api.register({ name: form.name, email: form.email, password: form.password });
+        setForm({ name: '', email: form.email, password: '', confirm: '' });
         setAuthMode('login');
         setAuthError('Registered! Now log in below.');
         return;
@@ -205,11 +214,26 @@ function App() {
               className="input"
               type="password"
               placeholder="••••••••"
+              autoComplete={authMode === 'register' ? 'new-password' : 'current-password'}
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               required
             />
           </div>
+          {authMode === 'register' && (
+            <div className="field">
+              <label>Confirm password</label>
+              <input
+                className="input"
+                type="password"
+                placeholder="••••••••"
+                autoComplete="new-password"
+                value={form.confirm}
+                onChange={(e) => setForm({ ...form, confirm: e.target.value })}
+                required
+              />
+            </div>
+          )}
           <button type="submit" className="btn btn-primary btn-block">
             {authMode === 'login' ? 'Log in' : 'Register'}
           </button>
@@ -221,6 +245,7 @@ function App() {
             onClick={() => {
               setAuthMode(authMode === 'login' ? 'register' : 'login');
               setAuthError('');
+              setForm({ ...form, password: '', confirm: '' });
             }}
           >
             {authMode === 'login' ? 'Need an account? Register' : 'Already have an account? Log in'}
